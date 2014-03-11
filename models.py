@@ -7,52 +7,46 @@ import sqlalchemy
 from sqlalchemy.sql.schema import Column, ForeignKey, Sequence
 from sqlalchemy.sql.sqltypes import Integer, String, TIMESTAMP, BOOLEAN
 from sqlalchemy.orm import relationship
-from sqlalchemy.ext.declarative import declarative_base
 from abc import abstractmethod
+from app import db
 
-engine = sqlalchemy.create_engine('sqlite://', echo=False)
-Base = declarative_base()
-
-class User(Base):
+class User(db.Model):
     """
     User model object
     """
     __tablename__ = "users"
     id = Column(Integer, primary_key=True)
-    id_source = Column(String(255))
     ip = Column(String(50))
     timestamp = Column(TIMESTAMP)
     organization_id = Column(Integer, ForeignKey('organizations.id'))
     organization = relationship("Organization", backref="users")
 
-    def __init__(self, id=None, id_source=None, ip=None, timestamp=None, organization_id=None):
+    def __init__(self, id=None, ip=None, timestamp=None, organization_id=None):
         """
         Constructor for user model object
         """
         self.id = id
-        self.id_source = id_source
         self.ip = ip
         self.timestamp = timestamp
         self.organization_id = organization_id
 
 
-class Organization(Base):
+class Organization(db.Model):
     """
     classdocs
     """
     __tablename__ = "organizations"
     id = Column(Integer, primary_key=True)
-    id_source = Column(String(255))
     name = Column(String(128))
     url = Column(String(255))
     is_part_of_id = Column(Integer, ForeignKey("organizations.id"))
     is_part_of = relationship("Organization", uselist=False, foreign_keys=is_part_of_id)
 
-    def __init__(self, id_source=None, name=None, url=None, is_part_of=None):
+    def __init__(self, id=None, name=None, url=None, is_part_of=None):
         """
         Constructor
         """
-        self.id_source = id_source
+        self.id = id
         self.name = name
         self.url = url
         self.is_part_of = is_part_of
@@ -64,7 +58,7 @@ class Organization(Base):
 
 
 
-class DataSource(Base):
+class DataSource(db.Model):
     """
     classdocs
     """
@@ -94,7 +88,7 @@ class DataSource(Base):
         observation.provider = self
 
 
-class Dataset(Base):
+class Dataset(db.Model):
     """
     classdocs
     """
@@ -120,13 +114,12 @@ class Dataset(Base):
         data_slice.dataset = self
 
 
-class Slice(Base):
+class Slice(db.Model):
     """
     classdocs
     """
     __tablename__ = "slices"
     id = Column(Integer, primary_key=True)
-    id_source = Column(String(255))
     indicator_id = Column(Integer, ForeignKey("indicators.id"))
     indicator = relationship("Indicator")
     dimension_id = Column(Integer, ForeignKey("dimensions.id"))
@@ -135,11 +128,10 @@ class Slice(Base):
     dataset = relationship("Dataset", backref="slices")
     observation = relationship("Observation")
 
-    def __init__(self, id=None, id_source=None, dimension=None, dataset=None, indicator=None):
+    def __init__(self, id=None, dimension=None, dataset=None, indicator=None):
         """
         Constructor
         """
-        self.id_source = id_source
         self.dataset = dataset
         self.indicator = indicator
         self.id = id
@@ -151,7 +143,7 @@ class Slice(Base):
         observation.data_slice = self
 
 
-class Observation(Base):
+class Observation(db.Model):
     """
     classdocs
     """
@@ -197,7 +189,7 @@ class Observation(Base):
                 self.value, self.indicator, self.provider)
 
 
-class Indicator(Base):
+class Indicator(db.Model):
     """
     classdocs
     """
@@ -242,7 +234,7 @@ class Indicator(Base):
             return False
 
 
-class IndicatorGroup(Base):
+class IndicatorGroup(db.Model):
     """
     classdocs
     """
@@ -255,7 +247,7 @@ class IndicatorGroup(Base):
     }
 
 
-class MeasurementUnit(Base):
+class MeasurementUnit(db.Model):
     """
     classdocs
     """
@@ -278,7 +270,7 @@ class MeasurementUnit(Base):
             return False
 
 
-class License(Base):
+class License(db.Model):
     """
     classdocs
     """
@@ -299,7 +291,7 @@ class License(Base):
         self.url = url
 
 
-class Computation(Base):
+class Computation(db.Model):
     """
     classdocs
     """
@@ -314,7 +306,7 @@ class Computation(Base):
         self.uri = uri
 
 
-class Value(Base):
+class Value(db.Model):
     """
     classdocs
     """
@@ -331,7 +323,7 @@ class Value(Base):
         self.obs_status = obs_status
 
 
-class IndicatorRelationship(Base):
+class IndicatorRelationship(db.Model):
     """
     classdocs
     """
@@ -397,7 +389,7 @@ class Becomes(IndicatorRelationship):
         super(Becomes, self).__init__(source, target)
 
 
-class Dimension(Base):
+class Dimension(db.Model):
     """
     classdocs
     """
@@ -582,5 +574,3 @@ class CompoundIndicator(Indicator):
     __mapper_args__ = {
         'polymorphic_identity': 'compoundIndicators',
     }
-
-Base.metadata.create_all(engine)
