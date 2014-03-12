@@ -198,7 +198,7 @@ class Indicator(db.Model):
     id_source = Column(String(255))
     name = Column(String(50))
     description = Column(String(255))
-    measurement_unit_id = Column(String(20), ForeignKey("measurementUnits.name"))
+    measurement_unit_id = Column(Integer, ForeignKey("measurementUnits.id"))
     measurement_unit = relationship("MeasurementUnit")
     dataset_id = Column(Integer, ForeignKey('datasets.id'))
     dataset = relationship("Dataset", backref="indicators")
@@ -252,12 +252,14 @@ class MeasurementUnit(db.Model):
     classdocs
     """
     __tablename__ = "measurementUnits"
-    name = Column(String(20), primary_key=True)
+    id = Column(Integer, primary_key=True)
+    name = Column(String(20))
 
-    def __init__(self, name=None):
+    def __init__(self, id=None, name=None):
         """
         Constructor
         """
+        self.id = id
         self.name = name
 
     def __hash__(self):
