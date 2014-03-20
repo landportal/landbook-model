@@ -150,7 +150,6 @@ class Observation(db.Model):
     __tablename__ = "observations"
     id = Column(Integer, primary_key=True)
     id_source = Column(String(255))
-    status = Column(String(255))
     ref_time_id = Column(Integer, ForeignKey("times.id"))
     ref_time = relationship("Time", foreign_keys=ref_time_id, uselist=False)
     issued_id = Column(Integer, ForeignKey("instants.id"))
@@ -167,7 +166,6 @@ class Observation(db.Model):
     dataset = relationship("Dataset", foreign_keys=dataset_id, backref="observations")
     region_id = Column(Integer, ForeignKey("regions.id"))
     slice_id = Column(Integer, ForeignKey("slices.id"))
-
 
     def __init__(self, id=None, id_source=None, ref_time=None, issued=None,
                  computation=None, value=None, indicator=None, provider=None):
