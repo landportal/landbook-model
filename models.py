@@ -15,10 +15,10 @@ class User(db.Model):
     User model object
     """
     __tablename__ = "users"
-    id = Column(Integer, primary_key=True)
+    id = Column(String(255), primary_key=True, autoincrement=False)
     ip = Column(String(50))
     timestamp = Column(TIMESTAMP)
-    organization_id = Column(Integer, ForeignKey('organizations.id'))
+    organization_id = Column(String(255), ForeignKey('organizations.id'))
     organization = relationship("Organization", backref="users")
 
     def __init__(self, id=None, ip=None, timestamp=None, organization_id=None):
@@ -36,19 +36,17 @@ class Organization(db.Model):
     classdocs
     """
     __tablename__ = "organizations"
-    id = Column(Integer, primary_key=True)
+    id = Column(String(255), primary_key=True, autoincrement=False)
     name = Column(String(128))
-    url = Column(String(255))
-    is_part_of_id = Column(Integer, ForeignKey("organizations.id"))
+    is_part_of_id = Column(String(255), ForeignKey("organizations.id"))
     is_part_of = relationship("Organization", uselist=False, foreign_keys=is_part_of_id)
 
-    def __init__(self, id=None, name=None, url=None, is_part_of=None):
+    def __init__(self, id=None, name=None, is_part_of=None):
         """
         Constructor
         """
         self.id = id
         self.name = name
-        self.url = url
         self.is_part_of = is_part_of
         self.data_sources = []
 
@@ -66,7 +64,7 @@ class DataSource(db.Model):
     id = Column(Integer, primary_key=True)
     id_source = Column(String(255))
     name = Column(String(128))
-    organization_id = Column(Integer, ForeignKey("organizations.id"))
+    organization_id = Column(String(255), ForeignKey("organizations.id"))
     organization = relationship("Organization", backref="sources")
 
     def __init__(self, id_source, name=None, organization=None):
