@@ -441,7 +441,7 @@ class Instant(Time):
         """
         Constructor
         """
-        self.instant = instant
+        self.timestamp = instant
 
     def get_time_string(self):
         return self.instant.strftime("%Y-%m-%dT%H:%M:%S")
