@@ -547,7 +547,7 @@ class Country(Region):
         super(Country, self).__init__(name, is_part_of)
         self.iso2 = iso2
         self.iso3 = iso3
-        self.fao_URI = fao_URI
+        self.faoURI = fao_URI
 
     def get_dimension_string(self):
         return self.iso3
