@@ -453,8 +453,8 @@ class Interval(Time):
     """
     __tablename__ = "intervals"
     id = Column(Integer, ForeignKey("times.id"), primary_key=True)
-    start_time = Column(sqlalchemy.Time)
-    end_time = Column(sqlalchemy.Time)
+    start_time = Column(TIMESTAMP)
+    end_time = Column(TIMESTAMP)
 
     __mapper_args__ = {
         'polymorphic_identity': 'intervals',
@@ -477,8 +477,8 @@ class YearInterval(Interval):
     """
     __tablename__ = "yearIntervals"
     id = Column(Integer, ForeignKey("intervals.id"), primary_key=True)
-    start_time = Column(sqlalchemy.Time)
-    end_time = Column(sqlalchemy.Time)
+    start_time = Column(TIMESTAMP)
+    end_time = Column(TIMESTAMP)
     year = Column(Integer)
 
     __mapper_args__ = {
