@@ -3,12 +3,39 @@ Created on 03/02/2014
 
 @author: Herminio
 """
-import sqlalchemy
 from sqlalchemy.sql.schema import Column, ForeignKey, Sequence
 from sqlalchemy.sql.sqltypes import Integer, String, TIMESTAMP, BOOLEAN
 from sqlalchemy.orm import relationship
 from abc import abstractmethod
 from app import db
+
+
+class Language(db.Model):
+    """ Language class. Contains language name and two-character code
+    """
+    __tablename__ = 'languages'
+    lang_code = Column(String(2), primary_key=True, autoincrement=False)
+    name = Column(String(25))
+
+    def __init__(self, name, lang_code):
+        self.name = name
+        self.lang_code = lang_code
+
+
+class Translation(db.Model):
+    """ Translation class. Contains translations for different languages.
+    The item_id may be an indicator_id, an observation_id or a country_iso3
+    """
+    __tablename__ = 'translations'
+    lang_code = Column(String(2), ForeignKey('languages.lang_code'), primary_key=True)
+    item_id = Column(String(255), primary_key=True)
+    name = Column(String(255))
+
+    def __init__(self, lang_code, item_id, name):
+        self.lang_code = lang_code
+        self.item_id = item_id
+        self.name = name
+
 
 class User(db.Model):
     """
