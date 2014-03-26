@@ -173,8 +173,7 @@ class Observation(db.Model):
     classdocs
     """
     __tablename__ = "observations"
-    id = Column(Integer, primary_key=True)
-    id_source = Column(String(255))
+    id = Column(String(255), primary_key=True)
     ref_time_id = Column(Integer, ForeignKey("times.id"))
     ref_time = relationship("Time", foreign_keys=ref_time_id, uselist=False)
     issued_id = Column(Integer, ForeignKey("instants.id"))
@@ -192,13 +191,12 @@ class Observation(db.Model):
     region_id = Column(Integer, ForeignKey("regions.id"))
     slice_id = Column(Integer, ForeignKey("slices.id"))
 
-    def __init__(self, id=None, id_source=None, ref_time=None, issued=None,
+    def __init__(self, id=None, ref_time=None, issued=None,
                  computation=None, value=None, indicator=None, provider=None):
         """
         Constructor
         """
         self.id = id
-        self.id_source = id_source
         self.ref_time = ref_time
         self.issued = issued
         self.computation = computation
