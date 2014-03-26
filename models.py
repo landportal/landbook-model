@@ -145,7 +145,7 @@ class Slice(db.Model):
     """
     __tablename__ = "slices"
     id = Column(Integer, primary_key=True)
-    indicator_id = Column(Integer, ForeignKey("indicators.id"))
+    indicator_id = Column(String(255), ForeignKey("indicators.id"))
     indicator = relationship("Indicator")
     dimension_id = Column(Integer, ForeignKey("dimensions.id"))
     dimension = relationship("Dimension")
@@ -185,7 +185,7 @@ class Observation(db.Model):
     indicator_group = relationship("IndicatorGroup", foreign_keys=indicator_group_id)
     value_id = Column(Integer, ForeignKey("vals.id"))
     value = relationship("Value", foreign_keys=value_id, uselist=False)
-    indicator_id = Column(Integer, ForeignKey("indicators.id"))
+    indicator_id = Column(String(255), ForeignKey("indicators.id"))
     indicator = relationship("Indicator", foreign_keys=indicator_id)
     dataset_id = Column(Integer, ForeignKey("datasets.id"))
     dataset = relationship("Dataset", foreign_keys=dataset_id, backref="observations")
@@ -218,8 +218,7 @@ class Indicator(db.Model):
     classdocs
     """
     __tablename__ = "indicators"
-    id = Column(Integer, Sequence('indicator_id_seq'), primary_key=True)
-    id_source = Column(String(255))
+    id = Column(String(255), primary_key=True)
     name = Column(String(50))
     description = Column(String(255))
     measurement_unit_id = Column(Integer, ForeignKey("measurementUnits.id"))
@@ -234,8 +233,8 @@ class Indicator(db.Model):
         'polymorphic_on': type
     }
 
-    def __init__(self, id_source, name, description, measurement_unit_id=0, dataset_id=0, compound_indicator_id=0):
-        self.id_source = id_source
+    def __init__(self, id, name, description, measurement_unit_id=0, dataset_id=0, compound_indicator_id=0):
+        self.id = id
         self.name = name
         self.description = description
         self.measurement_unit_id = measurement_unit_id
@@ -355,9 +354,9 @@ class IndicatorRelationship(db.Model):
     """
     __tablename__ = "indicatorRelationships"
     id = Column(Integer, primary_key=True)
-    source_id = Column(Integer, ForeignKey("indicators.id"))
+    source_id = Column(String(255), ForeignKey("indicators.id"))
     source = relationship("Indicator", foreign_keys=source_id)
-    target_id = Column(Integer, ForeignKey("indicators.id"))
+    target_id = Column(String(255), ForeignKey("indicators.id"))
     target = relationship("Indicator", foreign_keys=target_id)
     type = Column(String(50))
 
@@ -380,8 +379,8 @@ class IsPartOf(IndicatorRelationship):
     """
     __tablename__ = "ispartof"
     id = Column(Integer, ForeignKey("indicatorRelationships.id"), primary_key=True)
-    source_id = Column(Integer, ForeignKey("indicators.id"))
-    target_id = Column(Integer, ForeignKey("indicators.id"))
+    source_id = Column(String(255), ForeignKey("indicators.id"))
+    target_id = Column(String(255), ForeignKey("indicators.id"))
 
     __mapper_args__ = {
         'polymorphic_identity': 'ispartof',
@@ -401,8 +400,8 @@ class Becomes(IndicatorRelationship):
     """
     __tablename__ = "becomes"
     id = Column(Integer, ForeignKey("indicatorRelationships.id"), primary_key=True)
-    source_id = Column(Integer, ForeignKey("indicators.id"))
-    target_id = Column(Integer, ForeignKey("indicators.id"))
+    source_id = Column(String(255), ForeignKey("indicators.id"))
+    target_id = Column(String(255), ForeignKey("indicators.id"))
 
     __mapper_args__ = {
         'polymorphic_identity': 'becomes',
@@ -585,7 +584,7 @@ class CompoundIndicator(Indicator):
     classdocs
     """
     __tablename__ = "compoundIndicators"
-    id = Column(Integer, ForeignKey("indicators.id"),
+    id = Column(String(255), ForeignKey("indicators.id"),
                 primary_key=True)  #there should be a foreign, but there is not due to indicator_ref relationship
     indicator_id = Column(Integer)
     name = Column(String(50))
