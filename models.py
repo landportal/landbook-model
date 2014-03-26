@@ -3,7 +3,7 @@ Created on 03/02/2014
 
 @author: Herminio
 """
-from sqlalchemy.sql.schema import Column, ForeignKey, Sequence
+from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import Integer, String, TIMESTAMP, BOOLEAN
 from sqlalchemy.orm import relationship
 from abc import abstractmethod
