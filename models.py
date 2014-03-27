@@ -144,23 +144,23 @@ class Slice(db.Model):
     classdocs
     """
     __tablename__ = "slices"
-    id = Column(Integer, primary_key=True)
+    id = Column(String(255), primary_key=True, autoincrement=False)
     indicator_id = Column(String(255), ForeignKey("indicators.id"))
     indicator = relationship("Indicator")
     dimension_id = Column(Integer, ForeignKey("dimensions.id"))
     dimension = relationship("Dimension")
     dataset_id = Column(Integer, ForeignKey("datasets.id"))
     dataset = relationship("Dataset", backref="slices")
-    observation = relationship("Observation")
+    observations = relationship("Observation")
 
-    def __init__(self, id=None, dimension=None, dataset=None, indicator=None):
+    def __init__(self, id, dimension=None, dataset=None, indicator=None):
         """
         Constructor
         """
-        self.dataset = dataset
-        self.indicator = indicator
         self.id = id
         self.dimension = dimension
+        self.dataset = dataset
+        self.indicator = indicator
         self.observations = []
 
     def add_observation(self, observation):
@@ -189,7 +189,7 @@ class Observation(db.Model):
     dataset_id = Column(Integer, ForeignKey("datasets.id"))
     dataset = relationship("Dataset", foreign_keys=dataset_id, backref="observations")
     region_id = Column(Integer, ForeignKey("regions.id"))
-    slice_id = Column(Integer, ForeignKey("slices.id"))
+    slice_id = Column(String(255), ForeignKey("slices.id"))
 
     def __init__(self, id=None, ref_time=None, issued=None,
                  computation=None, value=None, indicator=None, provider=None):
