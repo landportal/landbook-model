@@ -224,6 +224,7 @@ class Indicator(db.Model):
     dataset = relationship("Dataset", backref="indicators")
     #compound_indicator_id = Column(Integer, ForeignKey("compoundIndicators.id")) #circular dependency
     type = Column(String(50))
+    topic_id = Column(String(6), ForeignKey('topics.id'))
 
     __mapper_args__ = {
         'polymorphic_identity': 'indicators',
@@ -252,6 +253,20 @@ class Indicator(db.Model):
             return self.id == other.id
         else:
             return False
+
+
+class Topic(db.Model):
+    """Topic class. Each indicator refers to a topic
+    """
+    __tablename__ = 'topics'
+    id = Column(String(6), primary_key=True, autoincrement=False)
+    name = Column(String(255))
+    indicators = relationship('Indicator', backref='topic')
+
+    def __init__(self, id, name):
+        self.id = id
+        self.name = name
+        self.indicators = []
 
 
 class IndicatorGroup(db.Model):
