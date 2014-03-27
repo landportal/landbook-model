@@ -22,18 +22,17 @@ class Language(db.Model):
         self.lang_code = lang_code
 
 
-class Translation(db.Model):
-    """ Translation class. Contains translations for different languages.
-    The item_id may be an indicator_id, an observation_id or a country_iso3
+class CountryTranslation(db.Model):
+    """Contains translations for country names
     """
-    __tablename__ = 'translations'
+    __tablename__ = 'countryTranslations'
     lang_code = Column(String(2), ForeignKey('languages.lang_code'), primary_key=True)
-    item_id = Column(String(255), primary_key=True)
+    country_id = Column(String(3), ForeignKey('countries.iso3'), primary_key=True)
     name = Column(String(255))
 
-    def __init__(self, lang_code, item_id, name):
+    def __init__(self, lang_code, name, country_id=None):
         self.lang_code = lang_code
-        self.item_id = item_id
+        self.country_id = country_id
         self.name = name
 
 
@@ -556,9 +555,10 @@ class Country(Region):
     __tablename__ = "countries"
     id = Column(Integer, ForeignKey("regions.id"), primary_key=True)
     faoURI = Column(String(128))
-    iso2 = Column(String(10))
-    iso3 = Column(String(10))
+    iso2 = Column(String(2))
+    iso3 = Column(String(3))
     name = Column(String(128))
+    translations = relationship('CountryTranslation')
 
     __mapper_args__ = {
         'polymorphic_identity': 'countries',
@@ -576,6 +576,9 @@ class Country(Region):
     def get_dimension_string(self):
         return self.iso3
 
+    def add_translation(self, translation):
+        self.translations.append(translation)
+        translation.country_id = self.iso3
 
 class CompoundIndicator(Indicator):
     """
