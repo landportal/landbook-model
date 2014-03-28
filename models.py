@@ -64,6 +64,7 @@ class Organization(db.Model):
     __tablename__ = "organizations"
     id = Column(String(255), primary_key=True, autoincrement=False)
     name = Column(String(128))
+    url = Column(String(255))
     is_part_of_id = Column(String(255), ForeignKey("organizations.id"))
     is_part_of = relationship("Organization", uselist=False, foreign_keys=is_part_of_id)
 
