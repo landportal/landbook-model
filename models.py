@@ -64,6 +64,7 @@ class Organization(db.Model):
     __tablename__ = "organizations"
     id = Column(String(255), primary_key=True, autoincrement=False)
     name = Column(String(128))
+    url = Column(String(255))
     is_part_of_id = Column(String(255), ForeignKey("organizations.id"))
     is_part_of = relationship("Organization", uselist=False, foreign_keys=is_part_of_id)
 
@@ -225,6 +226,7 @@ class Indicator(db.Model):
     #compound_indicator_id = Column(Integer, ForeignKey("compoundIndicators.id")) #circular dependency
     type = Column(String(50))
     topic_id = Column(String(6), ForeignKey('topics.id'))
+    translations = relationship('IndicatorTranslation')
 
     __mapper_args__ = {
         'polymorphic_identity': 'indicators',
@@ -254,6 +256,26 @@ class Indicator(db.Model):
         else:
             return False
 
+    def add_translation(self, translation):
+        translation.indicator_id = self.id
+        self.translations.append(translation)
+
+
+class IndicatorTranslation(db.Model):
+    """Contains translations for indicator names and descriptions
+    """
+    __tablename__ = 'indicatorTranslations'
+    lang_code = Column(String(2), ForeignKey('languages.lang_code'), primary_key=True)
+    indicator_id = Column(String(255), ForeignKey('indicators.id'), primary_key=True)
+    name = Column(String(255))
+    description = Column(String(255))
+
+    def __init__(self, lang_code, name, description, indicator_id=None):
+        self.lang_code = lang_code
+        self.indicator_id = indicator_id
+        self.name = name
+        self.description = description
+
 
 class Topic(db.Model):
     """Topic class. Each indicator refers to a topic
@@ -262,11 +284,31 @@ class Topic(db.Model):
     id = Column(String(6), primary_key=True, autoincrement=False)
     name = Column(String(255))
     indicators = relationship('Indicator', backref='topic')
+    translations = relationship('TopicTranslation')
 
     def __init__(self, id, name):
         self.id = id
         self.name = name
         self.indicators = []
+        self.translations = []
+
+    def add_translation(self, translation):
+        self.translations.append(translation)
+        translation.topic_id = self.id
+
+
+class TopicTranslation(db.Model):
+    """Contains translations for topic names
+    """
+    __tablename__ = 'topicTranslations'
+    lang_code = Column(String(2), ForeignKey('languages.lang_code'), primary_key=True)
+    topic_id = Column(String(6), ForeignKey('topics.id'), primary_key=True)
+    name = Column(String(255))
+
+    def __init__(self, lang_code, name, topic_id=None):
+        self.lang_code = lang_code
+        self.topic_id = topic_id
+        self.name = name
 
 
 class IndicatorGroup(db.Model):
