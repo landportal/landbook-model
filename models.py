@@ -224,6 +224,7 @@ class Indicator(db.Model):
     dataset_id = Column(Integer, ForeignKey('datasets.id'))
     dataset = relationship("Dataset", backref="indicators")
     #compound_indicator_id = Column(Integer, ForeignKey("compoundIndicators.id")) #circular dependency
+    last_update = Column(TIMESTAMP)
     type = Column(String(50))
     topic_id = Column(String(6), ForeignKey('topics.id'))
 
