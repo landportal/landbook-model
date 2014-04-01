@@ -22,18 +22,21 @@ class Language(db.Model):
         self.lang_code = lang_code
 
 
-class CountryTranslation(db.Model):
+class RegionTranslation(db.Model):
     """Contains translations for country names
     """
-    __tablename__ = 'countryTranslations'
+    __tablename__ = 'regionTranslations'
     lang_code = Column(String(2), ForeignKey('languages.lang_code'), primary_key=True)
-    country_id = Column(String(3), ForeignKey('countries.iso3'), primary_key=True)
+    region_id = Column(Integer, ForeignKey('regions.id'), primary_key=True)
     name = Column(String(255))
 
-    def __init__(self, lang_code, name, country_id=None):
+    def __init__(self, lang_code, name, region_id=None):
         self.lang_code = lang_code
-        self.country_id = country_id
+        self.region_id = region_id
         self.name = name
+
+    def __str__(self):
+        return '<RegionTranslation, name=' + self.name + ', lang_code=' + self.lang_code +'>'
 
 
 class User(db.Model):
@@ -581,20 +584,19 @@ class Region(Dimension):
     """
     __tablename__ = "regions"
     id = Column(Integer, ForeignKey("dimensions.id"), primary_key=True)
-    name = Column(String(128))
     is_part_of_id = Column(Integer, ForeignKey("regions.id"))
     is_part_of = relationship("Region", uselist=False, foreign_keys=is_part_of_id)
     observations = relationship("Observation")
+    translations = relationship('RegionTranslation')
 
     __mapper_args__ = {
         'polymorphic_identity': 'regions',
     }
 
-    def __init__(self, name=None, is_part_of=None):
+    def __init__(self, is_part_of=None):
         """
         Constructor
         """
-        self.name = name
         self.is_part_of = is_part_of
         self.observations = []
 
@@ -603,7 +605,11 @@ class Region(Dimension):
         observation.region = self
 
     def get_dimension_string(self):
-        return self.name
+        return str(self.id)
+
+    def add_translation(self, translation):
+        self.translations.append(translation)
+        translation.region_id = self.id
 
 
 class Country(Region):
@@ -615,28 +621,22 @@ class Country(Region):
     faoURI = Column(String(128))
     iso2 = Column(String(2))
     iso3 = Column(String(3))
-    name = Column(String(128))
-    translations = relationship('CountryTranslation')
 
     __mapper_args__ = {
         'polymorphic_identity': 'countries',
     }
 
-    def __init__(self, name=None, iso2=None, iso3=None, fao_URI=None, is_part_of=None):
+    def __init__(self, iso2=None, iso3=None, fao_URI=None, is_part_of=None):
         """
         Constructor
         """
-        super(Country, self).__init__(name, is_part_of)
+        super(Country, self).__init__(is_part_of)
         self.iso2 = iso2
         self.iso3 = iso3
         self.faoURI = fao_URI
 
     def get_dimension_string(self):
         return self.iso3
-
-    def add_translation(self, translation):
-        self.translations.append(translation)
-        translation.country_id = self.iso3
 
 class CompoundIndicator(Indicator):
     """
