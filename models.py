@@ -219,6 +219,7 @@ class Indicator(db.Model):
     id = Column(String(255), primary_key=True)
     name = Column(String(50))
     description = Column(String(255))
+    preferable_tendency = Column(100)
     measurement_unit_id = Column(Integer, ForeignKey("measurementUnits.id"))
     measurement_unit = relationship("MeasurementUnit")
     dataset_id = Column(Integer, ForeignKey('datasets.id'))
@@ -234,10 +235,12 @@ class Indicator(db.Model):
         'polymorphic_on': type
     }
 
-    def __init__(self, id, name, description, measurement_unit_id=0, dataset_id=0, compound_indicator_id=0):
+    def __init__(self, id, name, description, preferable_tendency=None,
+                 measurement_unit_id=0, dataset_id=0, compound_indicator_id=0):
         self.id = id
         self.name = name
         self.description = description
+        self.preferable_tendency = preferable_tendency
         self.measurement_unit_id = measurement_unit_id
         self.dataset_id = dataset_id
         self.compound_indicator_id = compound_indicator_id
