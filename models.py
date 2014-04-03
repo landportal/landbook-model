@@ -85,23 +85,20 @@ class Organization(db.Model):
         data_source.organization = self
 
 
-
 class DataSource(db.Model):
     """
     classdocs
     """
     __tablename__ = "datasources"
     id = Column(Integer, primary_key=True)
-    id_source = Column(String(255))
     name = Column(String(128))
     organization_id = Column(String(255), ForeignKey("organizations.id"))
     organization = relationship("Organization", backref="sources")
 
-    def __init__(self, id_source, name=None, organization=None):
+    def __init__(self, name=None, organization=None):
         """
         Constructor
         """
-        self.id_source = id_source
         self.name = name
         self.organization = organization
         self.datasets = []
