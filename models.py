@@ -9,6 +9,12 @@ from sqlalchemy.orm import relationship
 from abc import abstractmethod
 from app import db
 
+# Only for many-to-many relationship between Dataset and Indicator
+dataset_indicator = db.Table('dataset_indicator',
+    Column('dataset_id', Integer, ForeignKey('datasets.id')),
+    Column('indicator_id', String(255), ForeignKey('indicators.id'))
+)
+
 
 class Language(db.Model):
     """ Language class. Contains language name and two-character code
@@ -124,6 +130,9 @@ class Dataset(db.Model):
     datasource = relationship("DataSource", backref="datasets")
     license_id = Column(Integer, ForeignKey("licenses.id"))
     license = relationship("License")
+    indicators = relationship('Indicator',
+                              secondary=dataset_indicator,
+                              backref='datasets')
 
     def __init__(self, id=None, frequency=None, source=None):
         """
@@ -137,6 +146,10 @@ class Dataset(db.Model):
     def add_slice(self, data_slice):
         self.slices.append(data_slice)
         data_slice.dataset = self
+
+    def add_indicator(self, indicator):
+        self.indicators.append(indicator)
+        indicator.datasets.append(self)
 
 
 class Slice(db.Model):
@@ -222,8 +235,8 @@ class Indicator(db.Model):
     preferable_tendency = Column(String(100))
     measurement_unit_id = Column(Integer, ForeignKey("measurementUnits.id"))
     measurement_unit = relationship("MeasurementUnit")
-    dataset_id = Column(Integer, ForeignKey('datasets.id'))
-    dataset = relationship("Dataset", backref="indicators")
+    #dataset_id = Column(Integer, ForeignKey('datasets.id'))
+    #dataset = relationship("Dataset", backref="indicators")
     #compound_indicator_id = Column(Integer, ForeignKey("compoundIndicators.id")) #circular dependency
     last_update = Column(TIMESTAMP)
     type = Column(String(50))
@@ -662,3 +675,4 @@ class CompoundIndicator(Indicator):
     __mapper_args__ = {
         'polymorphic_identity': 'compoundIndicators',
     }
+
