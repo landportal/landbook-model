@@ -237,7 +237,7 @@ class Indicator(db.Model):
     measurement_unit = relationship("MeasurementUnit")
     #dataset_id = Column(Integer, ForeignKey('datasets.id'))
     #dataset = relationship("Dataset", backref="indicators")
-    #compound_indicator_id = Column(Integer, ForeignKey("compoundIndicators.id")) #circular dependency
+    compound_indicator_id = Column(String(255), ForeignKey("compoundIndicators.id")) #circular dependency
     last_update = Column(TIMESTAMP)
     type = Column(String(50))
     topic_id = Column(String(6), ForeignKey('topics.id'))
@@ -659,20 +659,25 @@ class CompoundIndicator(Indicator):
     """
     classdocs
     """
+    # There was a problem with a circular dependency whith this table.
+    # Solution consisted in indicate the joins explicitly. Look at:
+    #   - indicator_refs
+    #   - inherit_condition
     __tablename__ = "compoundIndicators"
-    id = Column(String(255), ForeignKey("indicators.id"),
-                primary_key=True)  #there should be a foreign, but there is not due to indicator_ref relationship
+    id = Column(String(255),
+                primary_key=True)
     indicator_id = Column(Integer)
     name = Column(String(50))
     description = Column(String(255))
     measurement_unit_id = Column(String(20), ForeignKey("measurementUnits.name"))
     dataset_id = Column(Integer, ForeignKey("datasets.id"))
-    #indicator_refs = relationship("Indicator") #circular dependency
+    indicator_refs = relationship("Indicator", primaryjoin="CompoundIndicator.id == Indicator.compound_indicator_id") #circular dependency
     indicator_ref_group_id = Column(Integer, ForeignKey("indicatorGroups.id"))
     indicator_ref_group = relationship("IndicatorGroup", foreign_keys=indicator_ref_group_id, uselist=False,
                                        backref="compound_indicator")
 
     __mapper_args__ = {
         'polymorphic_identity': 'compoundIndicators',
+        'inherit_condition': (id == Indicator.id),
     }
 
