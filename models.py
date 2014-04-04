@@ -584,6 +584,7 @@ class Region(Dimension):
     """
     __tablename__ = "regions"
     id = Column(Integer, ForeignKey("dimensions.id"), primary_key=True)
+    un_code = Column(String(3))
     is_part_of_id = Column(Integer, ForeignKey("regions.id"))
     is_part_of = relationship("Region", uselist=False, foreign_keys=is_part_of_id)
     observations = relationship("Observation")
@@ -593,10 +594,11 @@ class Region(Dimension):
         'polymorphic_identity': 'regions',
     }
 
-    def __init__(self, is_part_of=None):
+    def __init__(self, is_part_of=None, un_code=None):
         """
         Constructor
         """
+        self.un_code = un_code
         self.is_part_of = is_part_of
         self.observations = []
 
@@ -626,17 +628,19 @@ class Country(Region):
         'polymorphic_identity': 'countries',
     }
 
-    def __init__(self, iso2=None, iso3=None, fao_URI=None, is_part_of=None):
+    def __init__(self, iso2=None, iso3=None, fao_URI=None, is_part_of=None,
+                 un_code=None):
         """
         Constructor
         """
-        super(Country, self).__init__(is_part_of)
+        super(Country, self).__init__(is_part_of, un_code)
         self.iso2 = iso2
         self.iso3 = iso3
         self.faoURI = fao_URI
 
     def get_dimension_string(self):
         return self.iso3
+
 
 class CompoundIndicator(Indicator):
     """
