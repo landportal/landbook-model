@@ -219,7 +219,7 @@ class Indicator(db.Model):
     id = Column(String(255), primary_key=True)
     name = Column(String(50))
     description = Column(String(255))
-    preferable_tendency = Column(100)
+    preferable_tendency = Column(String(100))
     measurement_unit_id = Column(Integer, ForeignKey("measurementUnits.id"))
     measurement_unit = relationship("MeasurementUnit")
     dataset_id = Column(Integer, ForeignKey('datasets.id'))
