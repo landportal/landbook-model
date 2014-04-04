@@ -584,7 +584,7 @@ class Region(Dimension):
     """
     __tablename__ = "regions"
     id = Column(Integer, ForeignKey("dimensions.id"), primary_key=True)
-    un_code = Column(String(3))
+    un_code = Column(Integer)
     is_part_of_id = Column(Integer, ForeignKey("regions.id"))
     is_part_of = relationship("Region", uselist=False, foreign_keys=is_part_of_id)
     observations = relationship("Observation")
