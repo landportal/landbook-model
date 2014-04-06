@@ -5,7 +5,7 @@ Created on 03/02/2014
 """
 from sqlalchemy.sql.schema import Column, ForeignKey
 from sqlalchemy.sql.sqltypes import Integer, String, TIMESTAMP, BOOLEAN
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 from abc import abstractmethod
 from app import db
 
@@ -193,7 +193,7 @@ class Observation(db.Model):
     issued = relationship("Instant", foreign_keys=issued_id, uselist=False)
     computation_id = Column(Integer, ForeignKey("computations.id"))
     computation = relationship("Computation", foreign_keys=computation_id)
-    indicator_group_id = Column(Integer, ForeignKey("indicatorGroups.id"))
+    indicator_group_id = Column(String(255), ForeignKey("indicatorGroups.id"))
     indicator_group = relationship("IndicatorGroup", foreign_keys=indicator_group_id)
     value_id = Column(Integer, ForeignKey("vals.id"))
     value = relationship("Value", foreign_keys=value_id, uselist=False)
@@ -333,7 +333,7 @@ class IndicatorGroup(db.Model):
     classdocs
     """
     __tablename__ = "indicatorGroups"
-    id = Column(Integer, primary_key=True)
+    id = Column(String(255), primary_key=True)
     observations = relationship("Observation")
 
     __mapper_args__ = {
@@ -672,12 +672,15 @@ class CompoundIndicator(Indicator):
     measurement_unit_id = Column(String(20), ForeignKey("measurementUnits.name"))
     dataset_id = Column(Integer, ForeignKey("datasets.id"))
     indicator_refs = relationship("Indicator", primaryjoin="CompoundIndicator.id == Indicator.compound_indicator_id") #circular dependency
-    indicator_ref_group_id = Column(Integer, ForeignKey("indicatorGroups.id"))
-    indicator_ref_group = relationship("IndicatorGroup", foreign_keys=indicator_ref_group_id, uselist=False,
-                                       backref="compound_indicator")
+    indicator_ref_group_id = Column(String(255), ForeignKey("indicatorGroups.id"))
+    indicator_ref_group = relationship("IndicatorGroup", foreign_keys=indicator_ref_group_id,
+                                       backref=backref("compound_indicator", uselist=False))
 
     __mapper_args__ = {
         'polymorphic_identity': 'compoundIndicators',
         'inherit_condition': (id == Indicator.id),
     }
+
+    def __repr__(self):
+        return '<CompoundIndicator: id={}'.format(self.id)
 
