@@ -125,7 +125,7 @@ class Dataset(db.Model):
     """
     __tablename__ = 'datasets'
     id = Column(Integer, primary_key=True)
-    sdmx_frequency = Column(Integer)
+    sdmx_frequency = Column(String(255))
     datasource_id = Column(Integer, ForeignKey("datasources.id"))
     datasource = relationship("DataSource", backref="datasets")
     license_id = Column(Integer, ForeignKey("licenses.id"))
