@@ -669,7 +669,7 @@ class CompoundIndicator(Indicator):
     indicator_id = Column(Integer)
     name = Column(String(50))
     description = Column(String(255))
-    measurement_unit_id = Column(String(20), ForeignKey("measurementUnits.name"))
+    measurement_unit_id = Column(Integer, ForeignKey("measurementUnits.id"))
     dataset_id = Column(Integer, ForeignKey("datasets.id"))
     indicator_refs = relationship("Indicator", primaryjoin="CompoundIndicator.id == Indicator.compound_indicator_id") #circular dependency
     indicator_ref_group_id = Column(String(255), ForeignKey("indicatorGroups.id"))
