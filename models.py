@@ -582,10 +582,10 @@ class YearInterval(Interval):
     }
 
     def __init__(self, year):
-        start_time = datetime.date(year=year, month=1, day=1)
-        end_time = datetime.date(year=year, month=12, day=31)
+        self.year = int(year)
+        start_time = datetime.date(year=self.year, month=1, day=1)
+        end_time = datetime.date(year=self.year, month=12, day=31)
         super(YearInterval, self).__init__(start_time, end_time)
-        self.year = year
 
     def get_time_string(self):
         return str(self.year)
