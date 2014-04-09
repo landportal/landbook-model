@@ -8,6 +8,7 @@ from sqlalchemy.sql.sqltypes import Integer, String, TIMESTAMP, BOOLEAN
 from sqlalchemy.orm import relationship, backref
 from abc import abstractmethod
 from app import db
+import datetime
 
 # Only for many-to-many relationship between Dataset and Indicator
 dataset_indicator = db.Table('dataset_indicator',
@@ -580,10 +581,9 @@ class YearInterval(Interval):
         'polymorphic_identity': 'yearIntervals',
     }
 
-    def __init__(self, start_time=None, end_time=None, year=None):
-        """
-        Constructor
-        """
+    def __init__(self, year):
+        start_time = datetime.date(year=year, month=1, day=1)
+        end_time = datetime.date(year=year, month=12, day=31)
         super(YearInterval, self).__init__(start_time, end_time)
         self.year = year
 
