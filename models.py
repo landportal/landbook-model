@@ -250,7 +250,7 @@ class Indicator(db.Model):
     }
 
     def __init__(self, id, name, description, preferable_tendency=None,
-                 measurement_unit_id=0, dataset_id=0, compound_indicator_id=0):
+                 measurement_unit_id=None, dataset_id=None, compound_indicator_id=None):
         self.id = id
         self.name = name
         self.description = description
@@ -409,7 +409,7 @@ class Value(db.Model):
     """
     __tablename__ = "vals"
     id = Column(Integer, primary_key=True)
-    obs_status = Column(String(50))
+    obs_status = Column(String(255))
     value_type = Column(String(50))
     value = Column(String(50))
 
