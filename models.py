@@ -240,6 +240,7 @@ class Indicator(db.Model):
     #dataset = relationship("Dataset", backref="indicators")
     compound_indicator_id = Column(String(255), ForeignKey("compoundIndicators.id")) #circular dependency
     last_update = Column(TIMESTAMP)
+    starred = Column(BOOLEAN)
     type = Column(String(50))
     topic_id = Column(String(6), ForeignKey('topics.id'))
     translations = relationship('IndicatorTranslation')
@@ -250,7 +251,7 @@ class Indicator(db.Model):
     }
 
     def __init__(self, id, name, description, preferable_tendency=None,
-                 measurement_unit_id=None, dataset_id=None, compound_indicator_id=None):
+                 measurement_unit_id=None, dataset_id=None, compound_indicator_id=None, starred=False):
         self.id = id
         self.name = name
         self.description = description
@@ -258,6 +259,7 @@ class Indicator(db.Model):
         self.measurement_unit_id = measurement_unit_id
         self.dataset_id = dataset_id
         self.compound_indicator_id = compound_indicator_id
+        self.starred = starred
 
     def __str__(self):
         return "<Indicator(id='%s', id_source='%s', name='%s', description='%s', " \
