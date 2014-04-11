@@ -286,7 +286,7 @@ class IndicatorTranslation(db.Model):
     lang_code = Column(String(2), ForeignKey('languages.lang_code'), primary_key=True)
     indicator_id = Column(String(255), ForeignKey('indicators.id'), primary_key=True)
     name = Column(String(255))
-    description = Column(String(255))
+    description = Column(String(6000)) #Hope it is enough...
 
     def __init__(self, lang_code, name, description, indicator_id=None):
         self.lang_code = lang_code
@@ -373,10 +373,10 @@ class License(db.Model):
     """
     __tablename__ = "licenses"
     id = Column(Integer, primary_key=True)
-    name = Column(String(50))
-    description = Column(String(255))
+    name = Column(String(300))
+    description = Column(String(6000))
     republish = Column(BOOLEAN)
-    url = Column(String(128))
+    url = Column(String(200))
 
     def __init__(self, name=None, description=None, republish=None, url=None):
         """
@@ -583,9 +583,9 @@ class YearInterval(Interval):
 
     def __init__(self, year):
         self.year = int(year)
-        start_time = datetime.date(year=self.year, month=1, day=1)
-        end_time = datetime.date(year=self.year, month=12, day=31)
-        super(YearInterval, self).__init__(start_time, end_time)
+        self.start_time = datetime.date(year=self.year, month=1, day=1)
+        self.end_time = datetime.date(year=self.year+1, month=1, day=1)
+        super(YearInterval, self).__init__(self.start_time, self.end_time)
 
     def get_time_string(self):
         return str(self.year)
