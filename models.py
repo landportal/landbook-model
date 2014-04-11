@@ -231,14 +231,10 @@ class Indicator(db.Model):
     """
     __tablename__ = "indicators"
     id = Column(String(255), primary_key=True)
-    name = Column(String(50))
-    description = Column(String(255))
     preferable_tendency = Column(String(100))
     measurement_unit_id = Column(Integer, ForeignKey("measurementUnits.id"))
     measurement_unit = relationship("MeasurementUnit")
-    #dataset_id = Column(Integer, ForeignKey('datasets.id'))
-    #dataset = relationship("Dataset", backref="indicators")
-    compound_indicator_id = Column(String(255), ForeignKey("compoundIndicators.id")) #circular dependency
+    compound_indicator_id = Column(String(255), ForeignKey("compoundIndicators.id"))
     last_update = Column(TIMESTAMP)
     starred = Column(BOOLEAN)
     type = Column(String(50))
@@ -250,31 +246,20 @@ class Indicator(db.Model):
         'polymorphic_on': type
     }
 
-    def __init__(self, id, name, description, preferable_tendency=None,
-                 measurement_unit_id=None, dataset_id=None, compound_indicator_id=None, starred=False):
+    def __init__(self, id, preferable_tendency=None, measurement_unit_id=None, 
+            dataset_id=None, compound_indicator_id=None, starred=False):
         self.id = id
-        self.name = name
-        self.description = description
         self.preferable_tendency = preferable_tendency
         self.measurement_unit_id = measurement_unit_id
         self.dataset_id = dataset_id
         self.compound_indicator_id = compound_indicator_id
         self.starred = starred
 
-    def __str__(self):
+    def __repr__(self):
         return "<Indicator(id='%s', id_source='%s', name='%s', description='%s', " \
                "measurement_unit_id='%s', dataset_id='%s', type='%s')>" % \
                (self.id, self.id_source, self.name, self.description, self.measurement_unit_id,
                 self.dataset_id, self.type)
-
-    def __hash__(self):
-        return hash(self.id)
-
-    def __eq__(self, other):
-        if isinstance(other, Indicator):
-            return self.id == other.id
-        else:
-            return False
 
     def add_translation(self, translation):
         translation.indicator_id = self.id
@@ -302,13 +287,11 @@ class Topic(db.Model):
     """
     __tablename__ = 'topics'
     id = Column(String(6), primary_key=True, autoincrement=False)
-    name = Column(String(255))
     indicators = relationship('Indicator', backref='topic')
     translations = relationship('TopicTranslation')
 
-    def __init__(self, id, name):
+    def __init__(self, id):
         self.id = id
-        self.name = name
         self.indicators = []
         self.translations = []
 
@@ -669,8 +652,6 @@ class CompoundIndicator(Indicator):
     id = Column(String(255),
                 primary_key=True)
     indicator_id = Column(Integer)
-    name = Column(String(50))
-    description = Column(String(255))
     measurement_unit_id = Column(Integer, ForeignKey("measurementUnits.id"))
     dataset_id = Column(Integer, ForeignKey("datasets.id"))
     indicator_refs = relationship("Indicator", primaryjoin="CompoundIndicator.id == Indicator.compound_indicator_id") #circular dependency
