@@ -4,7 +4,7 @@ Created on 03/02/2014
 @author: Herminio
 """
 from sqlalchemy.sql.schema import Column, ForeignKey
-from sqlalchemy.sql.sqltypes import Integer, String, TIMESTAMP, BOOLEAN
+from sqlalchemy.sql.sqltypes import Integer, String, TIMESTAMP, BOOLEAN, DATE
 from sqlalchemy.orm import relationship, backref
 from abc import abstractmethod
 from app import db
@@ -534,8 +534,8 @@ class Interval(Time):
     """
     __tablename__ = "intervals"
     id = Column(Integer, ForeignKey("times.id"), primary_key=True)
-    start_time = Column(TIMESTAMP)
-    end_time = Column(TIMESTAMP)
+    start_time = Column(DATE)
+    end_time = Column(DATE)
 
     __mapper_args__ = {
         'polymorphic_identity': 'intervals',
@@ -558,8 +558,8 @@ class YearInterval(Interval):
     """
     __tablename__ = "yearIntervals"
     id = Column(Integer, ForeignKey("intervals.id"), primary_key=True)
-    start_time = Column(TIMESTAMP)
-    end_time = Column(TIMESTAMP)
+    start_time = Column(DATE)
+    end_time = Column(DATE)
     year = Column(Integer)
 
     __mapper_args__ = {
