@@ -658,6 +658,8 @@ class CompoundIndicator(Indicator):
     indicator_ref_group_id = Column(String(255), ForeignKey("indicatorGroups.id"))
     indicator_ref_group = relationship("IndicatorGroup", foreign_keys=indicator_ref_group_id,
                                        backref=backref("compound_indicator", uselist=False))
+    last_update = Column(TIMESTAMP)
+    starred = Column(BOOLEAN)
 
     __mapper_args__ = {
         'polymorphic_identity': 'compoundIndicators',
