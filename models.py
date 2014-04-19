@@ -618,7 +618,7 @@ class Country(Region):
     """
     __tablename__ = "countries"
     id = Column(Integer, ForeignKey("regions.id"), primary_key=True)
-    is_part_of_id = Column(Integer, ForeignKey("regions.id"))
+    is_part_of_id = Column(Integer)
     faoURI = Column(String(128))
     iso2 = Column(String(2))
     iso3 = Column(String(3))
