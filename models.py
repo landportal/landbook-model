@@ -544,7 +544,8 @@ class Interval(Time):
         """Expects 'start_time' and 'end_time' as datetime.date objects"""
         self.start_time = start_time
         self.end_time = end_time
-        self.value = str(self.start_time.year) +"-"+ str(self.end_time.year)
+        if self.start_time is not None and self.end_time is not None:
+            self.value = str(self.start_time.year) + "-" + str(self.end_time.year)
 
     def get_time_string(self):
         return self.value
