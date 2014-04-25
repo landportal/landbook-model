@@ -529,51 +529,80 @@ class Instant(Time):
 
 
 class Interval(Time):
-    """
-    classdocs
-    """
+    """Represents any interval of time"""
     __tablename__ = "intervals"
     id = Column(Integer, ForeignKey("times.id"), primary_key=True)
     start_time = Column(DATE)
     end_time = Column(DATE)
+    value = Column(String(60))
 
     __mapper_args__ = {
         'polymorphic_identity': 'intervals',
     }
 
     def __init__(self, start_time=None, end_time=None):
-        """
-        Constructor
-        """
+        """Expects 'start_time' and 'end_time' as datetime.date objects"""
         self.start_time = start_time
         self.end_time = end_time
+        self.value = str(self.start_time.year) +"-"+ str(self.end_time.year)
 
     def get_time_string(self):
-        return str(self.start_time) + '-' + str(self.end_time)
+        return self.value
 
 
 class YearInterval(Interval):
-    """
-    classdocs
-    """
+    """Represents a single year"""
     __tablename__ = "yearIntervals"
     id = Column(Integer, ForeignKey("intervals.id"), primary_key=True)
     start_time = Column(DATE)
     end_time = Column(DATE)
     year = Column(Integer)
+    value = Column(String(60))
 
     __mapper_args__ = {
         'polymorphic_identity': 'yearIntervals',
     }
 
     def __init__(self, year):
+        """Expects 'year' as an integer or as an string"""
         self.year = int(year)
+        self.value = str(self.year)
         self.start_time = datetime.date(year=self.year, month=1, day=1)
         self.end_time = datetime.date(year=self.year+1, month=1, day=1)
-        super(YearInterval, self).__init__(self.start_time, self.end_time)
+        #super(YearInterval, self).__init__(self.start_time, self.end_time)
 
     def get_time_string(self):
-        return str(self.year)
+        return self.value
+
+
+class MonthInterval(Interval):
+    """Represents a single month"""
+    __tablename__ = "monthIntervals"
+    id = Column(Integer, ForeignKey("intervals.id"), primary_key=True)
+    start_time = Column(DATE)
+    end_time = Column(DATE)
+    year = Column(Integer)
+    month = Column(Integer)
+    value = Column(String(60))
+
+    __mapper_args__ = {
+        'polymorphic_identity': 'monthIntervals',
+    }
+
+    def __init__(self, month, year):
+        """Expects 'month' and 'year' as an integer or as a string"""
+        self.year = int(year)
+        self.month = int(month)
+        self.value = str(self.year) +"-"+ str(self.month)
+        self.start_time = datetime.date(year=self.year, month=self.month, day=1)
+        if self.month == 12:
+            self.end_time = datetime.date(year=self.year+1, month=1, day=1)
+        else:
+            self.end_time = datetime.date(year=self.year, month=self.month+1, day=1)
+        #super(YearInterval, self).__init__(self.start_time, self.end_time)
+
+    def get_time_string(self):
+        return self.value
 
 
 class Region(Dimension):
