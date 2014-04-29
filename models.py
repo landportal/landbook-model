@@ -196,7 +196,7 @@ class Observation(db.Model):
     computation = relationship("Computation", foreign_keys=computation_id)
     indicator_group_id = Column(String(255), ForeignKey("indicatorGroups.id"))
     indicator_group = relationship("IndicatorGroup", foreign_keys=indicator_group_id)
-    value_id = Column(Integer, ForeignKey("vals.id"))
+    value_id = Column(Integer, ForeignKey("values.id"))
     value = relationship("Value", foreign_keys=value_id, uselist=False)
     indicator_id = Column(String(255), ForeignKey("indicators.id"))
     indicator = relationship("Indicator", foreign_keys=indicator_id)
@@ -392,7 +392,7 @@ class Value(db.Model):
     """
     classdocs
     """
-    __tablename__ = "vals"
+    __tablename__ = "values"
     id = Column(Integer, primary_key=True)
     obs_status = Column(String(255))
     value_type = Column(String(50))
