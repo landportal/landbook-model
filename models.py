@@ -333,7 +333,7 @@ class MeasurementUnit(db.Model):
     """
     __tablename__ = "measurementUnits"
     id = Column(Integer, primary_key=True)
-    name = Column(String(20))
+    name = Column(String(100))
 
     def __init__(self, id=None, name=None):
         """
