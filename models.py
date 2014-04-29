@@ -272,7 +272,7 @@ class IndicatorTranslation(db.Model):
     __tablename__ = 'indicatorTranslations'
     lang_code = Column(String(2), ForeignKey('languages.lang_code'), primary_key=True)
     indicator_id = Column(String(255), ForeignKey('indicators.id'), primary_key=True)
-    name = Column(String(255))
+    name = Column(String(6000))
     description = Column(String(6000)) #Hope it is enough...
 
     def __init__(self, lang_code, name, description, indicator_id=None):
@@ -306,7 +306,7 @@ class TopicTranslation(db.Model):
     __tablename__ = 'topicTranslations'
     lang_code = Column(String(2), ForeignKey('languages.lang_code'), primary_key=True)
     topic_id = Column(String(6), ForeignKey('topics.id'), primary_key=True)
-    name = Column(String(255))
+    name = Column(String(6000))
 
     def __init__(self, lang_code, name, topic_id=None):
         self.lang_code = lang_code
@@ -358,10 +358,10 @@ class License(db.Model):
     """
     __tablename__ = "licenses"
     id = Column(Integer, primary_key=True)
-    name = Column(String(300))
+    name = Column(String(6000))
     description = Column(String(6000))
     republish = Column(BOOLEAN)
-    url = Column(String(200))
+    url = Column(String(500))
 
     def __init__(self, name=None, description=None, republish=None, url=None):
         """
@@ -379,7 +379,7 @@ class Computation(db.Model):
     """
     __tablename__ = "computations"
     id = Column(Integer, primary_key=True)
-    uri = Column(String(60))
+    uri = Column(String(500))
 
     def __init__(self, uri=None):
         """
@@ -394,9 +394,9 @@ class Value(db.Model):
     """
     __tablename__ = "values"
     id = Column(Integer, primary_key=True)
-    obs_status = Column(String(255))
+    obs_status = Column(String(500))
     value_type = Column(String(50))
-    value = Column(String(50))
+    value = Column(String(500))
 
     def __init__(self, obs_status=None):
         """
@@ -649,7 +649,7 @@ class Country(Region):
     __tablename__ = "countries"
     id = Column(Integer, ForeignKey("regions.id"), primary_key=True)
     is_part_of_id = Column(Integer)
-    faoURI = Column(String(128))
+    faoURI = Column(String(500))
     iso2 = Column(String(2))
     iso3 = Column(String(3))
 
