@@ -333,14 +333,15 @@ class MeasurementUnit(db.Model):
     """
     __tablename__ = "measurementUnits"
     id = Column(Integer, primary_key=True)
-    name = Column(String(100))
+    name = Column(String(255))
+    convertible_to = Column(String(255))
+    factor = Column(Integer)
 
-    def __init__(self, id=None, name=None):
-        """
-        Constructor
-        """
+    def __init__(self, id=None, name=None, convertible_to=None, factor=None):
         self.id = id
         self.name = name
+        self.convertible_to = convertible_to
+        self.factor = factor
 
     def __hash__(self):
         return hash(self.name)
