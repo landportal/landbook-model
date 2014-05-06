@@ -238,7 +238,7 @@ class Indicator(db.Model):
     last_update = Column(TIMESTAMP)
     starred = Column(BOOLEAN)
     type = Column(String(50))
-    topic_id = Column(String(6), ForeignKey('topics.id'))
+    topic_id = Column(String(100), ForeignKey('topics.id'))
     translations = relationship('IndicatorTranslation')
 
     __mapper_args__ = {
@@ -286,7 +286,7 @@ class Topic(db.Model):
     """Topic class. Each indicator refers to a topic
     """
     __tablename__ = 'topics'
-    id = Column(String(6), primary_key=True, autoincrement=False)
+    id = Column(String(100), primary_key=True, autoincrement=False)
     indicators = relationship('Indicator', backref='topic')
     translations = relationship('TopicTranslation')
 
@@ -305,7 +305,7 @@ class TopicTranslation(db.Model):
     """
     __tablename__ = 'topicTranslations'
     lang_code = Column(String(2), ForeignKey('languages.lang_code'), primary_key=True)
-    topic_id = Column(String(6), ForeignKey('topics.id'), primary_key=True)
+    topic_id = Column(String(100), ForeignKey('topics.id'), primary_key=True)
     name = Column(String(6000))
 
     def __init__(self, lang_code, name, topic_id=None):
