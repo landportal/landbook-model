@@ -701,3 +701,13 @@ class CompoundIndicator(Indicator):
     def __repr__(self):
         return '<CompoundIndicator: id={}'.format(self.id)
 
+
+class Auth(db.Model):
+    __tablename__ = "auth"
+    user = Column(String(256), primary_key=True)
+    token = Column(String(256))
+
+    def __init__(self, user, token):
+        self.user = user
+        self.token = token
+
