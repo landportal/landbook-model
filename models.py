@@ -4,7 +4,7 @@ Created on 03/02/2014
 @author: Herminio
 """
 from sqlalchemy.sql.schema import Column, ForeignKey
-from sqlalchemy.sql.sqltypes import Integer, String, TIMESTAMP, BOOLEAN, DATE
+from sqlalchemy.sql.sqltypes import Integer, String, TIMESTAMP, BOOLEAN, DATE, Float
 from sqlalchemy.orm import relationship, backref
 from abc import abstractmethod
 from app import db
@@ -335,7 +335,7 @@ class MeasurementUnit(db.Model):
     id = Column(Integer, primary_key=True)
     name = Column(String(255))
     convertible_to = Column(String(255))
-    factor = Column(Integer)
+    factor = Column(Float)
 
     def __init__(self, id=None, name=None, convertible_to=None, factor=None):
         self.id = id
