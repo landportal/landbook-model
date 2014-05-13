@@ -102,7 +102,7 @@ class DataSource(db.Model):
     organization_id = Column(String(255), ForeignKey("organizations.id"))
     organization = relationship("Organization", backref="sources")
 
-    def __init__(self, name=None, organization=None):
+    def __init__(self, name=None, organization=None, dsource_id=None):
         """
         Constructor
         """
@@ -110,6 +110,7 @@ class DataSource(db.Model):
         self.organization = organization
         self.datasets = []
         self.observations = []
+        self.dsource_id = dsource_id
 
     def add_dataset(self, dataset):
         self.datasets.append(dataset)
@@ -135,11 +136,11 @@ class Dataset(db.Model):
                               secondary=dataset_indicator,
                               backref='datasets')
 
-    def __init__(self, id=None, frequency=None, source=None):
+    def __init__(self, data_set_id=None, frequency=None, source=None):
         """
         Constructor
         """
-        self.id = id
+        self.id = data_set_id
         self.frequency = frequency
         self.source = source
         self.slices = []
@@ -382,11 +383,12 @@ class Computation(db.Model):
     id = Column(Integer, primary_key=True)
     uri = Column(String(500))
 
-    def __init__(self, uri=None):
+    def __init__(self, uri=None, description=None):
         """
         Constructor
         """
         self.uri = uri
+        self.description = description
 
 
 class Value(db.Model):
