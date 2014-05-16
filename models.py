@@ -4,7 +4,7 @@ Created on 03/02/2014
 @author: Herminio
 """
 from sqlalchemy.sql.schema import Column, ForeignKey
-from sqlalchemy.sql.sqltypes import Integer, String, TIMESTAMP, BOOLEAN, DATE
+from sqlalchemy.sql.sqltypes import Integer, String, TIMESTAMP, BOOLEAN, DATE, Float
 from sqlalchemy.orm import relationship, backref
 from abc import abstractmethod
 from app import db
@@ -102,7 +102,7 @@ class DataSource(db.Model):
     organization_id = Column(String(255), ForeignKey("organizations.id"))
     organization = relationship("Organization", backref="sources")
 
-    def __init__(self, name=None, organization=None):
+    def __init__(self, name=None, organization=None, dsource_id=None):
         """
         Constructor
         """
@@ -110,6 +110,7 @@ class DataSource(db.Model):
         self.organization = organization
         self.datasets = []
         self.observations = []
+        self.dsource_id = dsource_id
 
     def add_dataset(self, dataset):
         self.datasets.append(dataset)
@@ -135,11 +136,11 @@ class Dataset(db.Model):
                               secondary=dataset_indicator,
                               backref='datasets')
 
-    def __init__(self, id=None, frequency=None, source=None):
+    def __init__(self, data_set_id=None, frequency=None, source=None):
         """
         Constructor
         """
-        self.id = id
+        self.id = data_set_id
         self.frequency = frequency
         self.source = source
         self.slices = []
@@ -196,7 +197,7 @@ class Observation(db.Model):
     computation = relationship("Computation", foreign_keys=computation_id)
     indicator_group_id = Column(String(255), ForeignKey("indicatorGroups.id"))
     indicator_group = relationship("IndicatorGroup", foreign_keys=indicator_group_id)
-    value_id = Column(Integer, ForeignKey("vals.id"))
+    value_id = Column(Integer, ForeignKey("values.id"))
     value = relationship("Value", foreign_keys=value_id, uselist=False)
     indicator_id = Column(String(255), ForeignKey("indicators.id"))
     indicator = relationship("Indicator", foreign_keys=indicator_id)
@@ -238,7 +239,7 @@ class Indicator(db.Model):
     last_update = Column(TIMESTAMP)
     starred = Column(BOOLEAN)
     type = Column(String(50))
-    topic_id = Column(String(6), ForeignKey('topics.id'))
+    topic_id = Column(String(100), ForeignKey('topics.id'))
     translations = relationship('IndicatorTranslation')
 
     __mapper_args__ = {
@@ -272,7 +273,7 @@ class IndicatorTranslation(db.Model):
     __tablename__ = 'indicatorTranslations'
     lang_code = Column(String(2), ForeignKey('languages.lang_code'), primary_key=True)
     indicator_id = Column(String(255), ForeignKey('indicators.id'), primary_key=True)
-    name = Column(String(255))
+    name = Column(String(6000))
     description = Column(String(6000)) #Hope it is enough...
 
     def __init__(self, lang_code, name, description, indicator_id=None):
@@ -286,7 +287,7 @@ class Topic(db.Model):
     """Topic class. Each indicator refers to a topic
     """
     __tablename__ = 'topics'
-    id = Column(String(6), primary_key=True, autoincrement=False)
+    id = Column(String(100), primary_key=True, autoincrement=False)
     indicators = relationship('Indicator', backref='topic')
     translations = relationship('TopicTranslation')
 
@@ -305,8 +306,8 @@ class TopicTranslation(db.Model):
     """
     __tablename__ = 'topicTranslations'
     lang_code = Column(String(2), ForeignKey('languages.lang_code'), primary_key=True)
-    topic_id = Column(String(6), ForeignKey('topics.id'), primary_key=True)
-    name = Column(String(255))
+    topic_id = Column(String(100), ForeignKey('topics.id'), primary_key=True)
+    name = Column(String(6000))
 
     def __init__(self, lang_code, name, topic_id=None):
         self.lang_code = lang_code
@@ -333,14 +334,15 @@ class MeasurementUnit(db.Model):
     """
     __tablename__ = "measurementUnits"
     id = Column(Integer, primary_key=True)
-    name = Column(String(20))
+    name = Column(String(255))
+    convertible_to = Column(String(255))
+    factor = Column(Float)
 
-    def __init__(self, id=None, name=None):
-        """
-        Constructor
-        """
+    def __init__(self, id=None, name=None, convertible_to=None, factor=None):
         self.id = id
         self.name = name
+        self.convertible_to = convertible_to
+        self.factor = factor
 
     def __hash__(self):
         return hash(self.name)
@@ -358,10 +360,10 @@ class License(db.Model):
     """
     __tablename__ = "licenses"
     id = Column(Integer, primary_key=True)
-    name = Column(String(300))
+    name = Column(String(6000))
     description = Column(String(6000))
     republish = Column(BOOLEAN)
-    url = Column(String(200))
+    url = Column(String(500))
 
     def __init__(self, name=None, description=None, republish=None, url=None):
         """
@@ -379,24 +381,25 @@ class Computation(db.Model):
     """
     __tablename__ = "computations"
     id = Column(Integer, primary_key=True)
-    uri = Column(String(60))
+    uri = Column(String(500))
 
-    def __init__(self, uri=None):
+    def __init__(self, uri=None, description=None):
         """
         Constructor
         """
         self.uri = uri
+        self.description = description
 
 
 class Value(db.Model):
     """
     classdocs
     """
-    __tablename__ = "vals"
+    __tablename__ = "values"
     id = Column(Integer, primary_key=True)
-    obs_status = Column(String(255))
+    obs_status = Column(String(500))
     value_type = Column(String(50))
-    value = Column(String(50))
+    value = Column(String(500))
 
     def __init__(self, obs_status=None):
         """
@@ -529,51 +532,81 @@ class Instant(Time):
 
 
 class Interval(Time):
-    """
-    classdocs
-    """
+    """Represents any interval of time"""
     __tablename__ = "intervals"
     id = Column(Integer, ForeignKey("times.id"), primary_key=True)
     start_time = Column(DATE)
     end_time = Column(DATE)
+    value = Column(String(60))
 
     __mapper_args__ = {
         'polymorphic_identity': 'intervals',
     }
 
     def __init__(self, start_time=None, end_time=None):
-        """
-        Constructor
-        """
+        """Expects 'start_time' and 'end_time' as datetime.date objects"""
         self.start_time = start_time
         self.end_time = end_time
+        if self.start_time is not None and self.end_time is not None:
+            self.value = str(self.start_time.year) + "-" + str(self.end_time.year)
 
     def get_time_string(self):
-        return str(self.start_time) + '-' + str(self.end_time)
+        return self.value
 
 
 class YearInterval(Interval):
-    """
-    classdocs
-    """
+    """Represents a single year"""
     __tablename__ = "yearIntervals"
     id = Column(Integer, ForeignKey("intervals.id"), primary_key=True)
     start_time = Column(DATE)
     end_time = Column(DATE)
     year = Column(Integer)
+    value = Column(String(60))
 
     __mapper_args__ = {
         'polymorphic_identity': 'yearIntervals',
     }
 
     def __init__(self, year):
+        """Expects 'year' as an integer or as an string"""
         self.year = int(year)
+        self.value = str(self.year)
         self.start_time = datetime.date(year=self.year, month=1, day=1)
         self.end_time = datetime.date(year=self.year+1, month=1, day=1)
-        super(YearInterval, self).__init__(self.start_time, self.end_time)
+        #super(YearInterval, self).__init__(self.start_time, self.end_time)
 
     def get_time_string(self):
-        return str(self.year)
+        return self.value
+
+
+class MonthInterval(Interval):
+    """Represents a single month"""
+    __tablename__ = "monthIntervals"
+    id = Column(Integer, ForeignKey("intervals.id"), primary_key=True)
+    start_time = Column(DATE)
+    end_time = Column(DATE)
+    year = Column(Integer)
+    month = Column(Integer)
+    value = Column(String(60))
+
+    __mapper_args__ = {
+        'polymorphic_identity': 'monthIntervals',
+    }
+
+    def __init__(self, month, year):
+        """Expects 'month' and 'year' as an integer or as a string"""
+        self.year = int(year)
+        self.month = int(month)
+        self.value = str(self.year) +"-"+ str(self.month)
+        self.start_time = datetime.date(year=self.year, month=self.month, day=1)
+        if self.month == 12:
+            self.end_time = datetime.date(year=self.year+1, month=1, day=1)
+        else:
+            self.end_time = datetime.date(year=self.year, month=self.month+1, day=1)
+        #super(YearInterval, self).__init__(self.start_time, self.end_time)
+
+    def get_time_string(self):
+        return self.value
 
 
 class Region(Dimension):
@@ -618,7 +651,8 @@ class Country(Region):
     """
     __tablename__ = "countries"
     id = Column(Integer, ForeignKey("regions.id"), primary_key=True)
-    faoURI = Column(String(128))
+    is_part_of_id = Column(Integer)
+    faoURI = Column(String(500))
     iso2 = Column(String(2))
     iso3 = Column(String(3))
 
@@ -658,6 +692,8 @@ class CompoundIndicator(Indicator):
     indicator_ref_group_id = Column(String(255), ForeignKey("indicatorGroups.id"))
     indicator_ref_group = relationship("IndicatorGroup", foreign_keys=indicator_ref_group_id,
                                        backref=backref("compound_indicator", uselist=False))
+    last_update = Column(TIMESTAMP)
+    starred = Column(BOOLEAN)
 
     __mapper_args__ = {
         'polymorphic_identity': 'compoundIndicators',
@@ -666,4 +702,14 @@ class CompoundIndicator(Indicator):
 
     def __repr__(self):
         return '<CompoundIndicator: id={}'.format(self.id)
+
+
+class Auth(db.Model):
+    __tablename__ = "auth"
+    user = Column(String(256), primary_key=True)
+    token = Column(String(256))
+
+    def __init__(self, user, token):
+        self.user = user
+        self.token = token
 
