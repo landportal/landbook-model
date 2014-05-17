@@ -12,7 +12,7 @@ import datetime
 
 # Only for many-to-many relationship between Dataset and Indicator
 dataset_indicator = db.Table('dataset_indicator',
-    Column('dataset_id', Integer, ForeignKey('datasets.id')),
+    Column('dataset_id', String(255), ForeignKey('datasets.id')),
     Column('indicator_id', String(255), ForeignKey('indicators.id'))
 )
 
@@ -97,7 +97,7 @@ class DataSource(db.Model):
     classdocs
     """
     __tablename__ = "datasources"
-    id = Column(Integer, primary_key=True)
+    id = Column(String(255), primary_key=True)
     name = Column(String(128))
     organization_id = Column(String(255), ForeignKey("organizations.id"))
     organization = relationship("Organization", backref="sources")
@@ -111,6 +111,7 @@ class DataSource(db.Model):
         self.datasets = []
         self.observations = []
         self.dsource_id = dsource_id
+        self.id = dsource_id
 
     def add_dataset(self, dataset):
         self.datasets.append(dataset)
@@ -126,9 +127,9 @@ class Dataset(db.Model):
     classdocs
     """
     __tablename__ = 'datasets'
-    id = Column(Integer, primary_key=True)
+    id = Column(String(255), primary_key=True, autoincrement=False)
     sdmx_frequency = Column(String(255))
-    datasource_id = Column(Integer, ForeignKey("datasources.id"))
+    datasource_id = Column(String(255), ForeignKey("datasources.id"))
     datasource = relationship("DataSource", backref="datasets")
     license_id = Column(Integer, ForeignKey("licenses.id"))
     license = relationship("License")
@@ -151,7 +152,6 @@ class Dataset(db.Model):
 
     def add_indicator(self, indicator):
         self.indicators.append(indicator)
-        indicator.datasets.append(self)
 
 
 class Slice(db.Model):
@@ -164,7 +164,7 @@ class Slice(db.Model):
     indicator = relationship("Indicator")
     dimension_id = Column(Integer, ForeignKey("dimensions.id"))
     dimension = relationship("Dimension")
-    dataset_id = Column(Integer, ForeignKey("datasets.id"))
+    dataset_id = Column(String(255), ForeignKey("datasets.id"))
     dataset = relationship("Dataset", backref="slices")
     observations = relationship("Observation")
 
@@ -201,7 +201,7 @@ class Observation(db.Model):
     value = relationship("Value", foreign_keys=value_id, uselist=False)
     indicator_id = Column(String(255), ForeignKey("indicators.id"))
     indicator = relationship("Indicator", foreign_keys=indicator_id)
-    dataset_id = Column(Integer, ForeignKey("datasets.id"))
+    dataset_id = Column(String(255), ForeignKey("datasets.id"))
     dataset = relationship("Dataset", foreign_keys=dataset_id, backref="observations")
     region_id = Column(Integer, ForeignKey("regions.id"))
     slice_id = Column(String(255), ForeignKey("slices.id"))
@@ -247,7 +247,7 @@ class Indicator(db.Model):
         'polymorphic_on': type
     }
 
-    def __init__(self, id, preferable_tendency=None, measurement_unit_id=None, 
+    def __init__(self, id, preferable_tendency=None, measurement_unit_id=None,
             dataset_id=None, compound_indicator_id=None, starred=False):
         self.id = id
         self.preferable_tendency = preferable_tendency
@@ -382,6 +382,7 @@ class Computation(db.Model):
     __tablename__ = "computations"
     id = Column(Integer, primary_key=True)
     uri = Column(String(500))
+    description = Column(String(6000))
 
     def __init__(self, uri=None, description=None):
         """
@@ -687,7 +688,7 @@ class CompoundIndicator(Indicator):
                 primary_key=True)
     indicator_id = Column(Integer)
     measurement_unit_id = Column(Integer, ForeignKey("measurementUnits.id"))
-    dataset_id = Column(Integer, ForeignKey("datasets.id"))
+    dataset_id = Column(String(255), ForeignKey("datasets.id"))
     indicator_refs = relationship("Indicator", primaryjoin="CompoundIndicator.id == Indicator.compound_indicator_id") #circular dependency
     indicator_ref_group_id = Column(String(255), ForeignKey("indicatorGroups.id"))
     indicator_ref_group = relationship("IndicatorGroup", foreign_keys=indicator_ref_group_id,
@@ -712,4 +713,3 @@ class Auth(db.Model):
     def __init__(self, user, token):
         self.user = user
         self.token = token
-
