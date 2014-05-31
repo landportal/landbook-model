@@ -67,6 +67,20 @@ class User(db.Model):
         self.organization_id = organization_id
 
 
+class OrganizationTranslation(db.Model):
+    """Contains translations for organization names and descriptions
+    """
+    __tablename__ = 'organizationTranslations'
+    lang_code = Column(String(2), ForeignKey('languages.lang_code'), primary_key=True)
+    organization_id = Column(String(255), ForeignKey('organizations.id'), primary_key=True)
+    description = Column(String(6000))
+
+    def __init__(self, lang_code, description, organization_id=None):
+        self.lang_code = lang_code
+        self.organization_id = organization_id
+        self.description = description
+
+
 class Organization(db.Model):
     """
     classdocs
@@ -77,6 +91,7 @@ class Organization(db.Model):
     url = Column(String(255))
     is_part_of_id = Column(String(255), ForeignKey("organizations.id"))
     is_part_of = relationship("Organization", uselist=False, foreign_keys=is_part_of_id)
+    translations = relationship('OrganizationTranslation')
 
     def __init__(self, id=None, name=None, is_part_of=None):
         """
