@@ -93,7 +93,7 @@ class Organization(db.Model):
     is_part_of = relationship("Organization", uselist=False, foreign_keys=is_part_of_id)
     translations = relationship('OrganizationTranslation')
 
-    def __init__(self, id=None, name=None, is_part_of=None):
+    def __init__(self, id=None, name=None, is_part_of=None, url=None):
         """
         Constructor
         """
@@ -101,10 +101,15 @@ class Organization(db.Model):
         self.name = name
         self.is_part_of = is_part_of
         self.data_sources = []
+        self.url = url
 
     def add_data_source(self, data_source):
         self.data_sources.append(data_source)
         data_source.organization = self
+
+    def add_translation(self, translation):
+        translation.organization_id = self.id
+        self.translations.append(translation)
 
 
 class DataSource(db.Model):
