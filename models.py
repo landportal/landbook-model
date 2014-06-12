@@ -676,6 +676,7 @@ class Country(Region):
     faoURI = Column(String(500))
     iso2 = Column(String(2))
     iso3 = Column(String(3))
+    taxonomy_id = Column(Integer)
 
     __mapper_args__ = {
         'polymorphic_identity': 'countries',
