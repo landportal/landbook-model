@@ -728,8 +728,8 @@ class CompoundIndicator(Indicator):
 
 class Auth(db.Model):
     __tablename__ = "auth"
-    user = Column(String(256), primary_key=True)
-    token = Column(String(256))
+    user = Column(String(255), primary_key=True)
+    token = Column(String(255))
 
     def __init__(self, user, token):
         self.user = user
